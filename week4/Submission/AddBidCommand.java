@@ -1,5 +1,7 @@
 package com.example.sharingapp;
 
+import java.util.concurrent.ExecutionException;
+
 import android.content.Context;
 
 /**
@@ -17,9 +19,26 @@ public class AddBidCommand extends Command {
         this.context = context;
     }
 
-    // Save bid locally
+    // Save bid remotely
     public void execute(){
-        bid_list.addBid(bid);
-        super.setIsExecuted(bid_list.saveBids(context));
+        ElasticSearchManager.AddBidTask addBidTask = new ElasticSearchManager.AddBidTask();
+        addBidTask.execute(bid);
+
+        try {
+            if(addBidTask.get()) {
+                bid_list.addBid(bid);
+                super.setIsExecuted(true);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            super.setIsExecuted(false);
+        }
     }
+
+
+    // // Save bid locally
+    // public void execute(){
+    //     bid_list.addBid(bid);
+    //     super.setIsExecuted(bid_list.saveBids(context));
+    // }
 }
