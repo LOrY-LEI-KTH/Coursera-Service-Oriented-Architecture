@@ -3,6 +3,7 @@ package com.example.sharingapp;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Observer;
 
 /**
  * BidListController is responsible for all communication between views and BidList model
@@ -22,24 +23,24 @@ public class BidListController {
         return bid_list.getBids();
     }
 
-    public boolean addBid(Bid bid, Context context){
-        AddBidCommand add_bid_command = new AddBidCommand(bid_list, bid, context);
+    public boolean addBid(Bid bid){
+        AddBidCommand add_bid_command = new AddBidCommand(bid);
         add_bid_command.execute();
         return add_bid_command.isExecuted();
     }
 
-    public boolean removeBid(Bid bid, Context context) {
-        DeleteBidCommand delete_bid_command = new DeleteBidCommand(bid_list, bid, context);
+    public boolean removeBid(Bid bid) {
+        DeleteBidCommand delete_bid_command = new DeleteBidCommand(bid);
         delete_bid_command.execute();
         return delete_bid_command.isExecuted();
     }
 
-    public boolean removeItemBids(String id, Context context) {
+    public boolean removeItemBids(String id) {
         DeleteBidCommand delete_bid_command;
         ArrayList<Bid> old_bids = bid_list.getItemBids(id);
 
         for (Bid b : old_bids) {
-            delete_bid_command = new DeleteBidCommand(bid_list, b, context);
+            delete_bid_command = new DeleteBidCommand(b);
             delete_bid_command.execute();
             if (!delete_bid_command.isExecuted()){
                 return false;
@@ -76,9 +77,13 @@ public class BidListController {
         return bid_list.getHighestBidder(id);
     }
 
-    public void loadBids(Context context) {
-        bid_list.loadBids(context);
+
+    public void getRemoteBids(Context context) {
+         bid_list.getRemoteBids(context); 
     }
+    // public void loadBids(Context context) {
+    //     bid_list.loadBids(context);
+    // }
 
     public boolean saveBids(Context context) {
         return bid_list.saveBids(context);
