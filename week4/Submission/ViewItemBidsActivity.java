@@ -45,7 +45,7 @@ public class ViewItemBidsActivity extends AppCompatActivity implements Observer 
 
         context = getApplicationContext();
 
-        bid_list_controller.loadBids(context);
+        bid_list_controller.getRemoteBids(context);
         bid_list_controller.addObserver(this);
         item_bid_list = bid_list_controller.getItemBids(item_id);
 
@@ -89,7 +89,7 @@ public class ViewItemBidsActivity extends AppCompatActivity implements Observer 
         }
 
         // Delete all bids related to that item.
-        success =  bid_list_controller.removeItemBids(item_id, context);
+        success =  bid_list_controller.removeItemBids(item_id);
         if (!success){
             return;
         }
@@ -131,7 +131,7 @@ public class ViewItemBidsActivity extends AppCompatActivity implements Observer 
         String status = item_controller.getStatus();
 
         // Delete selected bid.
-        Boolean success = bid_list_controller.removeBid(bid, context);
+        Boolean success = bid_list_controller.removeBid(bid);
         if (!success){
             return;
         }
@@ -203,7 +203,7 @@ public class ViewItemBidsActivity extends AppCompatActivity implements Observer 
         }
 
         // Delete all bids related to that item.
-        success =  bid_list_controller.removeItemBids(item_id, context);
+        success =  bid_list_controller.removeItemBids(item_id);
         if (!success){
             return;
         }
