@@ -217,6 +217,96 @@ public class ElasticSearchManager {
         }
     }
 
+
+    /**
+     * Delete bid from remote server using bid_id
+     */
+
+     public static class RemoveBidTask extends AsyncTask<Bid,Void,Boolean> {
+        @Override
+        protected Boolean doInBackground(Bid... params) {
+
+            verifyConfig();
+            Boolean success = false;
+            Bid bid = params[0];
+            try {
+                DocumentResult execute = client.execute(new Delete.Builder(bid.getBidId()).index(INDEX).type(USER_TYPE).build());
+                if(execute.isSucceeded()) {
+                    Log.i("ELASTICSEARCH", "Bid was successfully deleted");
+                    success = true;
+                } else {
+                    Log.e("ELASTICSEARCH", "Bid Delete failed");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return success;
+        }
+    }
+
+    /**
+     * Add bid to remote server
+     */
+    public static class AddBidTask extends AsyncTask<Bid,Void,Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Bid... params) {
+
+            verifyConfig();
+            Boolean success = false;
+            Bid bid = params[0];
+
+            String bidId = bid.getBidId(); 
+            Index index = new Index.Builder(bid).index(INDEX).type(USER_TYPE).id(bidId).build();
+            try {
+                DocumentResult execute = client.execute(index);
+                if(execute.isSucceeded()) {
+                    Log.i("ELASTICSEARCH", "Bid was successfully added");
+                    Log.i("ADDED Bid", bidId);
+                    success = true;
+                } else {
+                    Log.e("ELASTICSEARCH", "Bid failed to be added");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return success;
+        }
+    }
+
+    /**
+     * Returns all remote bids from server
+     */
+    public static class GetBidListTask extends AsyncTask<Void,Void,ArrayList<Bid>> {
+
+        @Override
+        protected ArrayList<Bid> doInBackground(Void... params) {
+
+            verifyConfig();
+            ArrayList<Bid> bidList = new ArrayList<>();
+            String search_string = "{\"from\":0,\"size\":10000}";
+
+            Search search = new Search.Builder(search_string).addIndex(INDEX).addType(USER_TYPE).build();
+            try {
+                SearchResult execute = client.execute(search);
+                if (execute.isSucceeded()) {
+                    bidList = (ArrayList<Bid>) execute.getSourceAsObjectList(Bid.class);
+                    Log.i("ELASTICSEARCH","Bid search was successful");
+                } else {
+                    Log.i("ELASTICSEARCH", "No Bids found");
+                }
+            } catch (IOException e) {
+                Log.i("ELASTICSEARCH", "Bid search failed");
+                e.printStackTrace();
+            }
+
+            return bidList;
+        }
+    }
+
+
     // If no client, add one
     private static void verifyConfig() {
         if(client == null) {
